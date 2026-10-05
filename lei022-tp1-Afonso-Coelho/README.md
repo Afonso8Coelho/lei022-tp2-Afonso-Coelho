@@ -71,8 +71,11 @@ Também são suportados parâmetros de pesquisa, ordenação e paginação:
 
 ```http
 GET /api/items?name=Item
+
 GET /api/items?sort=name
+
 GET /api/items?sort=id&order=desc
+
 GET /api/items?page=1&limit=10
 ```
 
@@ -248,24 +251,32 @@ Os testes verificam, entre outros aspetos:
 * Respostas para recursos inexistentes
 * Criação, atualização e remoção de recursos
 
-A coleção do Postman encontra-se na pasta:
+O ficheiro de testes do Postman encontra-se na raiz do projeto com o nome:
 
 ```text
-tests/
+tests
 ```
 
 ## Estrutura do projeto
 
 ```text
 lei022-tp1-Afonso-Coelho/
+
 │
 ├── backend/
 │   ├── server.js
 │   ├── package.json
 │   └── package-lock.json
 │
-├── tests/
-│   └── coleção Postman
+├── tests
 │
 └── README.md
 ```
+
+## Declaração de utilização de Inteligência Artificial
+
+Durante o desenvolvimento deste trabalho foi utilizada Inteligência Artificial como ferramenta de apoio.
+
+A IA foi utilizada principalmente para esclarecimento de dúvidas, compreensão de conceitos, identificação e correção de erros no código e apoio na organização da documentação do projeto.
+
+A implementação, testes, validação dos resultados e decisões finais relativas ao projeto foram realizadas pelo aluno, tendo o código sido analisado e adaptado de acordo com os requisitos do trabalho.
