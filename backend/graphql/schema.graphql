@@ -1,0 +1,23 @@
+enum Estado {
+  disponivel
+  emprestado
+  avariado
+}
+
+type Livro {
+  id: Int!
+  titulo: String!
+  autor: String!
+  estado: Estado!
+  criadoEm: String!
+}
+
+type Query {
+  livros(estado: Estado): [Livro!]!
+  livro(id: Int!): Livro
+}
+
+type Mutation {
+  createLivro(titulo: String!, autor: String!, estado: Estado!): Livro!
+  updateLivro(id: Int!, titulo: String!, autor: String!, estado: Estado!): Livro!
+}

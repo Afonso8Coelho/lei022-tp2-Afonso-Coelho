@@ -1,5 +1,8 @@
 const express = require('express');
 const app = express();
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+const criarHandlerGraphQL = require('./graphql');
 app.use(express.json());
 const PORT = 3000;
 
@@ -122,12 +125,7 @@ app.get('/api/items/:id', (req, res) => {
     const id = Number(req.params.id);
 
     if (!Number.isInteger(id) || id <= 0) {
-        return sendError(
-            res,
-            400,
-            'Pedido inválido',
-            'id inválido'
-        );
+        return sendError(res, 400, 'Pedido inválido', 'id inválido');
     }
 
     const item = items.find(item => item.id === id);
@@ -152,12 +150,7 @@ app.get('/api/livros/:id', (req, res) => {
     const id = Number(req.params.id);
 
     if (!Number.isInteger(id) || id <= 0) {
-        return sendError(
-            res,
-            400,
-            'Pedido inválido',
-            'id inválido'
-        );
+        return sendError(res, 400, 'Pedido inválido', 'id inválido');
     }
 
     const livro = livros.find(l => l.id === id);
@@ -213,27 +206,13 @@ app.post('/api/livros', (req, res) => {
         typeof autor !== 'string' ||
         typeof estado !== 'string'
     ) {
-        return sendError(
-            res,
-            400,
-            'Pedido inválido',
-            'Dados inválidos'
-        );
+        return sendError(res, 400, 'Pedido inválido', 'Dados inválidos');
     }
 
-    const estadosPermitidos = [
-        'disponivel',
-        'emprestado',
-        'avariado'
-    ];
+    const estadosPermitidos = ['disponivel', 'emprestado', 'avariado'];
 
     if (!estadosPermitidos.includes(estado)) {
-        return sendError(
-            res,
-            400,
-            'Pedido inválido',
-            'Estado inválido'
-        );
+        return sendError(res, 400, 'Pedido inválido', 'Estado inválido');
     }
 
     const existe = livros.find(
@@ -271,12 +250,7 @@ app.put('/api/items/:id', (req, res) => {
     const id = Number(req.params.id);
 
     if (!Number.isInteger(id) || id <= 0) {
-        return sendError(
-            res,
-            400,
-            'Pedido inválido',
-            'id inválido'
-        );
+        return sendError(res, 400, 'Pedido inválido', 'id inválido');
     }
 
     const item = items.find(item => item.id === id);
@@ -310,12 +284,7 @@ app.put('/api/livros/:id', (req, res) => {
     const id = Number(req.params.id);
 
     if (!Number.isInteger(id) || id <= 0) {
-        return sendError(
-            res,
-            400,
-            'Pedido inválido',
-            'id inválido'
-        );
+        return sendError(res, 400, 'Pedido inválido', 'id inválido');
     }
 
     const livro = livros.find(l => l.id === id);
@@ -331,23 +300,14 @@ app.put('/api/livros/:id', (req, res) => {
 
     const { titulo, autor, estado } = req.body;
 
-    const estadosPermitidos = [
-        'disponivel',
-        'emprestado',
-        'avariado'
-    ];
+    const estadosPermitidos = ['disponivel', 'emprestado', 'avariado'];
 
     if (
         typeof titulo !== 'string' ||
         typeof autor !== 'string' ||
         !estadosPermitidos.includes(estado)
     ) {
-        return sendError(
-            res,
-            400,
-            'Pedido inválido',
-            'Dados inválidos'
-        );
+        return sendError(res, 400, 'Pedido inválido', 'Dados inválidos');
     }
 
     const duplicado = livros.find(
@@ -376,12 +336,7 @@ app.delete('/api/items/:id', (req, res) => {
     const id = Number(req.params.id);
 
     if (!Number.isInteger(id) || id <= 0) {
-        return sendError(
-            res,
-            400,
-            'Pedido inválido',
-            'id inválido'
-        );
+        return sendError(res, 400, 'Pedido inválido', 'id inválido');
     }
 
     const index = items.findIndex(item => item.id === id);
@@ -404,12 +359,7 @@ app.delete('/api/livros/:id', (req, res) => {
     const id = Number(req.params.id);
 
     if (!Number.isInteger(id) || id <= 0) {
-        return sendError(
-            res,
-            400,
-            'Pedido inválido',
-            'id inválido'
-        );
+        return sendError(res, 400, 'Pedido inválido', 'id inválido');
     }
 
     const index = livros.findIndex(l => l.id === id);
@@ -428,13 +378,17 @@ app.delete('/api/livros/:id', (req, res) => {
     res.status(204).send();
 });
 
+app.all('/graphql', criarHandlerGraphQL({ livros }));
+
 app.use((req, res) => {
-    sendError(
-        res,
-        404,
-        'Não encontrado',
-        'Rota não existe'
-    );
+    sendError(res, 404, 'Não encontrado', 'Rota não existe');
+});
+
+app.use((err, req, res, next) => {
+    if (err.type === 'entity.parse.failed') {
+        return sendError(res, 400, 'Pedido inválido', 'JSON malformado');
+    }
+    sendError(res, 500, 'Erro interno', 'Ocorreu um erro inesperado');
 });
 
 app.listen(PORT, () => {

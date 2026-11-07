@@ -1,279 +1,165 @@
-# TP1 - Laboratório de Desenvolvimento de Software
+LEI022 - Laboratório de Desenvolvimento de Software (TP1 & TP2)
 
-## Descrição
+Descrição
 
-Este projeto consiste no desenvolvimento de uma API REST utilizando Node.js e Express.
+Este projeto consiste no desenvolvimento de uma API REST (TP1) integrada com uma solução de comunicação alternativa orientada a eventos/APIs (TP2 - Opção A: GraphQL), utilizando Node.js e Express.
 
-A API disponibiliza operações para gerir `items`, `livros` e `clientes`, incluindo operações de consulta, criação, atualização e remoção.
+A API disponibiliza operações para gerir items, livros e clientes via REST, bem como um endpoint flexível em GraphQL centrado no domínio de livros.
 
-Os testes da API foram realizados utilizando o Postman.
+Tecnologias utilizadas
 
-## Tecnologias utilizadas
+Node.js
 
-* Node.js
-* Express.js
-* JavaScript
-* Postman
+Express.js
 
-## Requisitos
+GraphQL (graphql-http, graphql)
+
+JavaScript
+
+Postman / Insomnia
+
+Requisitos
 
 Para executar o projeto é necessário ter instalado:
 
-* Node.js
-* npm
-* Postman
+Node.js (versão LTS)
 
-## Instalação
+npm
 
-Entrar na pasta `backend` do projeto:
+Postman ou Insomnia
 
-```bash
+Instalação
+
+Entrar na pasta backend do projeto:
+
 cd backend
-```
+
 
 Instalar as dependências:
 
-```bash
 npm install
-```
 
-## Execução
+
+Execução
 
 Para iniciar o servidor:
 
-```bash
 node server.js
-```
+
 
 Quando o servidor estiver a funcionar, será apresentada a mensagem:
 
-```text
 API a executar em http://localhost:3000
-```
 
-A API fica disponível em:
 
-```text
-http://localhost:3000
-```
+A API REST fica disponível em http://localhost:3000/api/... e o endpoint GraphQL em http://localhost:3000/graphql.
 
-## Endpoints
+Endpoints REST (TP1)
 
-### Items
+Items
 
-#### Listar todos os items
+GET /api/items (suporta filtros por name, ordenação sort/order e paginação page/limit)
 
-```http
-GET /api/items
-```
-
-Também são suportados parâmetros de pesquisa, ordenação e paginação:
-
-```http
-GET /api/items?name=Item
-
-GET /api/items?sort=name
-
-GET /api/items?sort=id&order=desc
-
-GET /api/items?page=1&limit=10
-```
-
-#### Obter um item pelo ID
-
-```http
 GET /api/items/:id
-```
 
-Exemplo:
-
-```http
-GET /api/items/1
-```
-
-#### Criar um item
-
-```http
 POST /api/items
-```
 
-Exemplo de corpo:
-
-```json
-{
-    "name": "Item3"
-}
-```
-
-#### Atualizar um item
-
-```http
 PUT /api/items/:id
-```
 
-Exemplo:
-
-```http
-PUT /api/items/1
-```
-
-Corpo:
-
-```json
-{
-    "name": "Novo Item"
-}
-```
-
-#### Remover um item
-
-```http
 DELETE /api/items/:id
-```
 
-Exemplo:
+Livros (Recursos Adicionais)
 
-```http
-DELETE /api/items/1
-```
-
-## Livros
-
-### Listar livros
-
-```http
 GET /api/livros
-```
 
-### Obter livro pelo ID
-
-```http
 GET /api/livros/:id
-```
 
-Exemplo:
+POST /api/livros (com validação de estados permitidos: disponivel, emprestado, avariado, e conflito 409 para títulos duplicados)
 
-```http
-GET /api/livros/1
-```
-
-### Criar livro
-
-```http
-POST /api/livros
-```
-
-Exemplo de corpo:
-
-```json
-{
-    "titulo": "JavaScript",
-    "autor": "Afonso Coelho",
-    "estado": "disponivel"
-}
-```
-
-Os estados permitidos são:
-
-* `disponivel`
-* `emprestado`
-* `avariado`
-
-### Atualizar livro
-
-```http
 PUT /api/livros/:id
-```
 
-Exemplo de corpo:
-
-```json
-{
-    "titulo": "JavaScript Avançado",
-    "autor": "Afonso Coelho",
-    "estado": "disponivel"
-}
-```
-
-### Remover livro
-
-```http
 DELETE /api/livros/:id
-```
 
-## Clientes
+Clientes
 
-### Listar clientes
-
-```http
 GET /api/clientes
-```
 
-Exemplo:
+Comunicação Alternativa - TP2: Opção A (GraphQL)
 
-```http
-GET /api/clientes
-```
+O projeto inclui um endpoint GraphQL integrado em /graphql que reutiliza o domínio de livros.
 
-## Tratamento de erros
+Schema e Operações Disponíveis
 
-A API utiliza códigos de estado HTTP para indicar o resultado das operações.
+Queries:
 
-Principais códigos utilizados:
+livros(estado: Estado): [Livro!]! — Permite consultar todos os livros ou filtrar opcionalmente por estado.
 
-* `200 OK` — pedido realizado com sucesso
-* `201 Created` — recurso criado com sucesso
-* `204 No Content` — recurso eliminado com sucesso
-* `400 Bad Request` — pedido ou dados inválidos
-* `404 Not Found` — recurso ou rota não encontrada
-* `409 Conflict` — conflito com um recurso existente
+livro(id: Int!): Livro — Obtém um livro específico pelo ID.
 
-Os erros da API utilizam o formato `application/problem+json` e incluem os campos:
+Mutations:
 
-```json
+createLivro(titulo: String!, autor: String!, estado: Estado!): Livro! — Cria um novo livro com validações e regra de conflito por título duplicado.
+
+updateLivro(id: Int!, titulo: String!, autor: String!, estado: Estado!): Livro! — Atualiza um livro existente.
+
+Exemplos de Utilização (GraphQL)
+
+Consultar dados selecionando apenas campos específicos (Query):
+
 {
-    "status": 400,
-    "title": "Pedido inválido",
-    "detail": "Descrição do erro"
+  "query": "{ livros { id titulo } }"
 }
-```
 
-## Testes
 
-Os testes da API foram realizados através do Postman.
+Criar um livro (Mutation):
 
-Os testes verificam, entre outros aspetos:
+{
+  "query": "mutation { createLivro(titulo: \"Clean Code\", autor: \"Robert Martin\", estado: disponivel) { id titulo criadoEm } }"
+}
 
-* Código de estado HTTP
-* Formato das respostas
-* Existência dos campos esperados
-* Respostas para pedidos inválidos
-* Respostas para recursos inexistentes
-* Criação, atualização e remoção de recursos
 
-O ficheiro de testes do Postman encontra-se na raiz do projeto com o nome:
+Comparação e Justificação Técnica (REST vs GraphQL)
 
-```text
-tests
-```
+Conforme exigido no TP2, apresenta-se uma breve comparação entre a abordagem REST implementada no TP1 e a tecnologia GraphQL adicionada no TP2:
 
-## Estrutura do projeto
+Padrão de comunicação e direção do fluxo: O REST baseia-se em múltiplos endpoints fixos mapeados para recursos com verbos HTTP (GET, POST, PUT, DELETE) num modelo tradicional de pedido/resposta unidirecional. O GraphQL utiliza um endpoint único (/graphql) onde o cliente envia queries ou mutations especificando exatamente a estrutura e os campos que pretende receber.
 
-```text
+Adequação ao requisito: O GraphQL é altamente adequado para cenários onde diferentes clientes (web, mobile) necessitam de flexibilidade na obtenção de dados, evitando o over-fetching (receber campos desnecessários) ou under-fetching (necessidade de múltiplos pedidos a vários endpoints).
+
+Complexidade de implementação e operação: O REST apresenta uma implementação mais direta e standard com o Express. O GraphQL exige a definição prévia de um esquema formal (schema.graphql) e a implementação de resolvers, elevando ligeiramente a complexidade inicial.
+
+Tratamento de erros e validações: No REST, os erros são rigidamente mapeados para códigos de estado HTTP (ex: 400, 404, 409) com o formato RFC 9457 (application/problem+json). No GraphQL, os pedidos HTTP respondem frequentemente com 200 OK, encapsulando os erros num bloco específico de extensões (extensions: { code: 'NOT_FOUND' | 'CONFLICT' | 'BAD_USER_INPUT' }).
+
+Vantagem principal: Flexibilidade total na seleção de campos por parte do cliente num único pedido ao servidor.
+
+Desvantagem principal: Maior complexidade na gestão de cache ao nível do HTTP e na monitorização de erros baseada estritamente em códigos de estado.
+
+Tratamento de erros
+
+A API utiliza códigos de estado HTTP e o formato application/problem+json para o REST, e extensões personalizadas para o GraphQL.
+Os principais códigos incluem 200, 201, 204, 400, 404 e 409.
+
+Testes e Evidências
+
+Os testes da API REST e do endpoint GraphQL foram validados utilizando ferramentas como o Postman/Insomnia. Os ficheiros e coleções de teste encontram-se na pasta tests/.
+
+Estrutura do projeto
+
 lei022-tp1-Afonso-Coelho/
-
 │
 ├── backend/
 │   ├── server.js
+│   ├── graphql.js
+│   ├── schema.graphql
 │   ├── package.json
 │   └── package-lock.json
 │
-├── tests
+├── tests/
 │
 └── README.md
-```
 
-## Declaração de utilização de Inteligência Artificial
+
+Declaração de utilização de Inteligência Artificial
 
 Durante o desenvolvimento deste trabalho foi utilizada Inteligência Artificial como ferramenta de apoio.
 
